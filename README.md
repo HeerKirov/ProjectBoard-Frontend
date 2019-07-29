@@ -1,2 +1,2 @@
-# ProjectBoard-Frontend
-Frontend of project board.
+# Project Board - Frontend
+> Coding...
