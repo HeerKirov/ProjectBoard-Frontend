@@ -1,16 +1,25 @@
 <template lang="pug">
-  div.home
-    HelloWorld(msg="Welcome to project board")
+    el-container()
+        el-aside(width="200px")
+            el-menu
+        el-container
+            el-header(style="background")
+            el-main
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
+import { Component, Vue } from 'vue-property-decorator'
 
-@Component({
-  components: {
-    HelloWorld,
-  },
-})
+@Component({components: {}})
 export default class Home extends Vue {}
 </script>
+
+<style>
+    .el-header {
+        color: #333;
+        line-height: 60px;
+    }
+    .el-aside {
+        color: #333;
+    }
+</style>

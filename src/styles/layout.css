@@ -1,0 +1,19 @@
+.layout-center {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    position: absolute;
+}
+.layout-right-bottom {
+    right: 0;
+    bottom: 0;
+    position: absolute;
+    transform: translate(-100%, -100%);
+}
+
+.text-center {
+    text-align: center;
+}
+.text-right {
+    text-align: right;
+}

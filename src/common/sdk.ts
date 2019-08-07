@@ -1,29 +1,134 @@
-import Axios from 'axios'
+import Axios, {Method, AxiosResponse} from 'axios'
 import config from '@/config'
 
-class SDK {
-    private readonly API_ADDRESS: string
-    private readonly LOCAL_STORAGE_TOKEN: string
-    private readonly headers: any = {'content-type': 'application/json'}
+interface Token {
+    token: string,
+    username: string,
+    createTime: number,
+    updateTime: number,
+    effectiveDuration: number,
+    expireTime: number
+}
 
-    constructor() {
-        this.API_ADDRESS = config.API_ADDRESS
-        this.LOCAL_STORAGE_TOKEN = config.LOCAL_STORAGE_TOKEN
+export enum AuthResult {
+    OK,         //登录成功
+    AUTH_FAILED,//登录认证失败
+    EXPIRED,    //会话过期
+    EXCEPTION,  //发生异常
+    NO          //没有登录
+}
+
+class SDKClass {
+    private readonly headers: any = {'Content-Type': 'application/json', 'Authorization': ''}
+    private token: Token | null = null
+    private state: AuthResult | null = null
+
+    private async request(url: string, method: Method, params: any, data: any): Promise<AxiosResponse<any>> {
+        try {
+            return await Axios.request({baseURL: config.API_ADDRESS, url, method, headers: this.headers, params, data})
+        }catch(e) {
+            return e.response
+        }
     }
 
-    private async request(url: string) {
-        return await Axios.request({
-            baseURL: this.API_ADDRESS,
-            url,
-            headers: this.headers
-        })
+    /**
+     * 仅用于设置sdk对象内的token对象，并且生成header。设置为null可以清除token。
+     * @param token
+     * @param init
+     */
+    private setToken(token: any | null, init: boolean = false) {
+        this.token = token
+        if(this.token == null) {
+            this.headers.Authorization = ''
+            if(!init) window.localStorage.setItem(config.LOCAL_STORAGE_TOKEN, '')
+        }else{
+            this.headers.Authorization = `Bearer ${this.token.token}`
+            if(!init) window.localStorage.setItem(config.LOCAL_STORAGE_TOKEN, JSON.stringify(this.token))
+        }
+    }
+    /**
+     * 获得当前会话的登录状态。
+     */
+    getState(): AuthResult | null {
+        return this.state
+    }
+
+    /**
+     * 手动调用初始化流程。
+     * 流程将从本地存储获得上次使用的token，尝试验证并更新token。如果可用则标记为登录成功。并更新token。
+     * 如果更新失败，那么回执为登录会话过期。
+     * 如果没有token，回执为没有保存登录状态。
+     */
+    async initialize(): Promise<AuthResult> {
+        if(this.state != null) {
+            return this.state
+        }
+        let str = window.localStorage.getItem(config.LOCAL_STORAGE_TOKEN)
+        if(str) {
+            let token = JSON.parse(str)
+            this.setToken(token, true)
+            return this.updateAuthentication()
+        }
+        this.state = AuthResult.NO
+        return this.state
+    }
+    /**
+     * 手动调用登录流程。
+     * 仅在没有登录时才能使用。流程将用用户名和密码请求新的token，并尝试将其保存。
+     * 返回值是http状态码。201表示登录成功。401表示认证失败。
+     */
+    async authenticate(username: string, password: string): Promise<AuthResult> {
+        let res = await this.request('/token', 'POST', {}, {username, password})
+        if(res.status === 201) {
+            this.setToken(res.data)
+            this.state = AuthResult.OK
+        }else if(res.status === 401) {
+            this.setToken(null)
+            this.state = AuthResult.AUTH_FAILED
+        }else{
+            this.setToken(null)
+            console.warn('Unknown error.')
+            this.state = AuthResult.EXCEPTION
+        }
+        return this.state
+    }
+    /**
+     * 手动调用刷新token有效期流程。如果可用则标记为登录成功。并更新token。
+     * 如果更新失败，那么回执为登录会话过期。
+     * 如果没有token，回执为没有保存登录状态。
+     */
+    async updateAuthentication(): Promise<AuthResult> {
+        if(this.token != null) {
+            let res = await this.request(`/token/${this.token.token}`, 'PUT', {}, null)
+            if(res.status === 200) {
+                this.setToken(res.data)
+                this.state = AuthResult.OK
+            }else if(res.status === 401) {
+                this.setToken(null)
+                console.log(res.data)
+                if(res.data === 'Expired' || res.data === 'No Such Token') this.state = AuthResult.EXPIRED
+                else this.state = AuthResult.AUTH_FAILED
+            }else{
+                this.setToken(null)
+                console.warn('Unknown error.')
+                this.state = AuthResult.EXCEPTION
+            }
+            return this.state
+        }
+        this.state = AuthResult.NO
+        return this.state
+    }
+    /**
+     * 手动退出认证。这会清除上一个token。
+     */
+    async logout() {
+        if(this.token != null) {
+            await this.request(`/token/${this.token.token}`, 'DELETE', {}, null)
+            this.setToken(null)
+            this.state = AuthResult.NO
+            return this.state
+        }
     }
 }
 
-/**SDK的逻辑：
- * 1. 使用local storage保存本地信息
- * 2. 使用token与服务器交互
- */
-const instance = new SDK()
-
-export default instance
+export const SDK = new SDKClass()

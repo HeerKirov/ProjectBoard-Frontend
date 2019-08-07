@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import IndexPage from './views/Index.vue'
 
 Vue.use(Router)
 
@@ -9,12 +8,12 @@ export default new Router({
     {
       path: '/',
       name: 'index',
-      component: IndexPage
+      component: () => import('@/views/Index.vue')
     },
     {
-      path: '/home',
+      path: '/board',
       name: 'home',
-      component: () => import(/* webpackChunkName: "about" */ './views/Home.vue')
+      component: () => import('@/views/Home.vue')
     }
   ]
 })
