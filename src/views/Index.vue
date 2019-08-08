@@ -12,10 +12,10 @@
             el-alert(v-if='alert.title', :title='alert.title', :type='alert.type', effect='dark', :closable='false')
         el-row.pt-1
             el-col(:span="12")
-                el-button(type="success", @click='doLogin') 登 录
+                el-button(type="success", @click='onLogin') 登 录
             el-col(:span="12")
                 div.text-right
-                    el-link.mt-1.mb-1(type="primary", @click='doRegister') 注册 >>
+                    el-link.mt-1.mb-1(type="primary", @click='onRegister') 注册 >>
 </template>
 
 <script lang="ts">
@@ -66,7 +66,7 @@ export default class Index extends Vue {
         }
     }
 
-    async doLogin() {
+    async onLogin() {
         if(!this.username || !this.password) {
             this.alert = ALERTS.INPUT_REQUIRED
             return
@@ -81,13 +81,13 @@ export default class Index extends Vue {
             this.setAlertByAuthResult(result)
         }
     }
-    doRegister() {
+    onRegister() {
         console.log('register')
     }
 }
 </script>
 
-<style>
+<style scoped>
     .login-dialog {
         width: 350px;
         padding: 0 5px;

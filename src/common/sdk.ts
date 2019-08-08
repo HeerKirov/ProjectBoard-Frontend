@@ -1,14 +1,6 @@
 import Axios, {Method, AxiosResponse} from 'axios'
 import config from '@/config'
-
-interface Token {
-    token: string,
-    username: string,
-    createTime: number,
-    updateTime: number,
-    effectiveDuration: number,
-    expireTime: number
-}
+import { Token, Profile, Project } from './models'
 
 export enum AuthResult {
     OK,         //登录成功
@@ -18,12 +10,63 @@ export enum AuthResult {
     NO          //没有登录
 }
 
+interface Map<VALUE> {
+    [T: string]: VALUE
+}
+
+interface Return<T> {
+    ok: boolean
+    status: number
+    data: T
+}
+
+interface ListResult<T> {
+    count: number
+    result: T[]
+}
+
+class RestEndpoint<T> {
+    constructor(private sdk: SDKClass, private url: (params?: Map<string>) => string) {
+
+    }
+
+    async list(nest?: Map<string>): Promise<Return<ListResult<T>>> {
+        let res = await this.sdk.request(this.url(nest), 'GET', {}, null)
+        if(res.status === 200) {
+            return {ok: true, status: 200, data: res.data}
+        }else{
+            return {ok: false, status: res.status, data: res.data}
+        }
+    }
+}
+
+class ProfileEndpoint {
+    private profile: Profile | null = null
+    constructor(private sdk: SDKClass, private url: string) {
+
+    }
+
+    async get(): Promise<Return<Profile>> {
+        if(this.profile == null) {
+            let res = await this.sdk.request('/profile', 'GET', {}, null)
+            if(res.status === 200) {
+                this.profile = res.data
+                return {ok: true, status: 200, data: res.data}
+            }else{
+                return {ok: false, status: res.status, data: res.data}
+            }
+        }else{
+            return {ok: true, status: 200, data: this.profile}
+        }
+    }
+}
+
 class SDKClass {
     private readonly headers: any = {'Content-Type': 'application/json', 'Authorization': ''}
     private token: Token | null = null
     private state: AuthResult | null = null
 
-    private async request(url: string, method: Method, params: any, data: any): Promise<AxiosResponse<any>> {
+    async request(url: string, method: Method, params: any, data: any): Promise<AxiosResponse<any>> {
         try {
             return await Axios.request({baseURL: config.API_ADDRESS, url, method, headers: this.headers, params, data})
         }catch(e) {
@@ -129,6 +172,10 @@ class SDKClass {
             return this.state
         }
     }
+
+    
+    readonly profile = new ProfileEndpoint(this, '/profile')
+    readonly projects = new RestEndpoint<Project>(this, p => `/projects/`)
 }
 
 export const SDK = new SDKClass()

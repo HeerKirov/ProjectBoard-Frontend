@@ -8,11 +8,7 @@
                 el-col(:span='4').text-right
                     label {{profile.name}}
         el-main
-            div.board-view
-                el-card.box-card(v-for='project in projects', :key='project.id')
-                    div.clearfix(slot='header') 
-                        el-link.project-title(@click='OnClickProject(project.id)', :underline='false') {{project.name}}
-                    div {{project.description}}
+            
 </template>
 
 <script lang="ts">
@@ -27,7 +23,6 @@ import '@/styles/margin.css'
 @Component({components: {}})
 export default class Home extends Vue {
     profile: Profile = {username: '', name: '', dateJoined: 0, isStaff: false}
-    projects: any[] = []
 
     async created() {
         this.requestForProjectList()
@@ -35,17 +30,7 @@ export default class Home extends Vue {
     }
 
     async requestForProjectList() {
-        let r = await SDK.projects.list()
-        if(r.ok) {
-            this.projects = r.data.result
-        }else{
-            this.projects = []
-            Message({message: `服务器发生错误：${r.status}`, type: "error"})
-        }
-    }
-
-    OnClickProject(projectId: string) {
-        this.$router.push({name: 'board', params: {project: projectId}})
+        
     }
 }
 </script>
@@ -64,8 +49,5 @@ export default class Home extends Vue {
         display: grid;
         grid-gap: 10px;
         grid-template-columns: repeat(auto-fit, 300px);
-    }
-    .project-title {
-        font-size: 16px
     }
 </style>

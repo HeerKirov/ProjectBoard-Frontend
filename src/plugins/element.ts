@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import {Aside, Button, Card, Col, Container, Header, Input, Link, Main, Menu, Row, Loading, Alert} from 'element-ui'
+import {Aside, Button, Card, Col, Container, Header, Input, Link, Main, Menu, Row, Loading, Alert, Message} from 'element-ui'
 
 Vue.use(Button)
 Vue.use(Container)
