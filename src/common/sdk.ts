@@ -1,6 +1,6 @@
 import Axios, {Method, AxiosResponse} from 'axios'
 import config from '@/config'
-import { Token, Profile, Project } from './models'
+import { Token, Profile, Project, Module } from './models'
 
 export enum AuthResult {
     OK,         //登录成功
@@ -26,12 +26,18 @@ interface ListResult<T> {
 }
 
 class RestEndpoint<T> {
-    constructor(private sdk: SDKClass, private url: (params?: Map<string>) => string) {
-
-    }
+    constructor(private sdk: SDKClass, private url: (params: Map<string>) => string) { }
 
     async list(nest?: Map<string>): Promise<Return<ListResult<T>>> {
-        let res = await this.sdk.request(this.url(nest), 'GET', {}, null)
+        let res = await this.sdk.request(this.url(nest || {}), 'GET', {}, null)
+        if(res.status === 200) {
+            return {ok: true, status: 200, data: res.data}
+        }else{
+            return {ok: false, status: res.status, data: res.data}
+        }
+    }
+    async retrieve(id: string, nest?: Map<string>): Promise<Return<T>> {
+        let res = await this.sdk.request(this.url(nest || {}) + id + '/', 'GET', {}, null)
         if(res.status === 200) {
             return {ok: true, status: 200, data: res.data}
         }else{
@@ -42,9 +48,7 @@ class RestEndpoint<T> {
 
 class ProfileEndpoint {
     private profile: Profile | null = null
-    constructor(private sdk: SDKClass, private url: string) {
-
-    }
+    constructor(private sdk: SDKClass, private url: string) { }
 
     async get(): Promise<Return<Profile>> {
         if(this.profile == null) {
@@ -62,6 +66,7 @@ class ProfileEndpoint {
 }
 
 class SDKClass {
+    private static readonly EFFECTIVE = 1000 * 60 * 60 * 24 * 3
     private readonly headers: any = {'Content-Type': 'application/json', 'Authorization': ''}
     private token: Token | null = null
     private state: AuthResult | null = null
@@ -121,7 +126,7 @@ class SDKClass {
      * 返回值是http状态码。201表示登录成功。401表示认证失败。
      */
     async authenticate(username: string, password: string): Promise<AuthResult> {
-        let res = await this.request('/token', 'POST', {}, {username, password})
+        let res = await this.request('/token', 'POST', {}, {username, password, effectiveDuration: SDKClass.EFFECTIVE})
         if(res.status === 201) {
             this.setToken(res.data)
             this.state = AuthResult.OK
@@ -142,7 +147,7 @@ class SDKClass {
      */
     async updateAuthentication(): Promise<AuthResult> {
         if(this.token != null) {
-            let res = await this.request(`/token/${this.token.token}`, 'PUT', {}, null)
+            let res = await this.request(`/token/${this.token.token}`, 'PUT', {}, {effectiveDuration: SDKClass.EFFECTIVE})
             if(res.status === 200) {
                 this.setToken(res.data)
                 this.state = AuthResult.OK
@@ -174,8 +179,9 @@ class SDKClass {
     }
 
     
-    readonly profile = new ProfileEndpoint(this, '/profile')
+    readonly profile = new ProfileEndpoint(this, '/profile/')
     readonly projects = new RestEndpoint<Project>(this, p => `/projects/`)
+    readonly modules = new RestEndpoint<Module>(this, p => `/projects/${p.project}/modules/`)
 }
 
 export const SDK = new SDKClass()

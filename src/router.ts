@@ -17,8 +17,19 @@ export default new Router({
     },
     {
       path: '/board/:project',
-      name: 'board',
-      component: () => import('@/views/Board.vue')
+      component: () => import('@/views/Board.vue'),
+      children: [
+        {
+          path: '',
+          name: 'board',
+          component: () => import('@/views/Board-Summary.vue')
+        }
+      ]
+    },
+    {
+      path: '*',
+      name: 'notFound',
+      component: () => import('@/views/NotFound.vue')
     }
   ]
 })

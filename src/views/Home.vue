@@ -10,23 +10,22 @@
         el-main
             div.board-view
                 el-card.box-card(v-for='project in projects', :key='project.id')
-                    div.clearfix(slot='header') 
-                        el-link.project-title(@click='OnClickProject(project.id)', :underline='false') {{project.name}}
-                    div {{project.description}}
+                    el-link.project-title(@click='OnClickProject(project.id)', :underline='false') {{project.name}}
+                    div.project-desc {{project.description}}
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Message } from 'element-ui'
 import { SDK } from '@/common/sdk'
-import { Profile } from '@/common/models'
+import { Profile, EMPTY_PROFILE } from '@/common/models'
 import '@/styles/layout.css'
 import '@/styles/padding.css'
 import '@/styles/margin.css'
 
 @Component({components: {}})
 export default class Home extends Vue {
-    profile: Profile = {username: '', name: '', dateJoined: 0, isStaff: false}
+    profile: Profile = EMPTY_PROFILE
     projects: any[] = []
 
     async created() {
@@ -66,6 +65,10 @@ export default class Home extends Vue {
         grid-template-columns: repeat(auto-fit, 300px);
     }
     .project-title {
-        font-size: 16px
+        font-size: 16px;
+        margin-bottom: 5px
+    }
+    .project-desc {
+        font-size: 14px
     }
 </style>
