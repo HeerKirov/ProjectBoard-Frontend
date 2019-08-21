@@ -1,6 +1,8 @@
+interface WindowResizeEvent { (width: number, height: number): void }
+
 export class FormHandler {
-    private static windowResizeSet: ((width: number, height: number) => void)[] | null = null
-    static onWindowResize(f: (width: number, height: number) => void) {
+    private static windowResizeSet: WindowResizeEvent[] | null = null
+    static onWindowResize(f: WindowResizeEvent) {
         if(this.windowResizeSet == null) {
             this.windowResizeSet = []
             window.onresize = () => {
@@ -13,7 +15,7 @@ export class FormHandler {
         }
         this.windowResizeSet!.push(f)
     }
-    static cancelWindowResize(f: (width: number, height: number) => void) {
+    static cancelWindowResize(f: WindowResizeEvent) {
         for(let i = 0; i < FormHandler.windowResizeSet!.length; ++i) {
             if(FormHandler.windowResizeSet![i] === f) {
                 FormHandler.windowResizeSet!.splice(i, 1)

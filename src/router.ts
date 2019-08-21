@@ -23,6 +23,21 @@ export default new Router({
           path: '',
           name: 'board',
           component: () => import('@/views/Board-Summary.vue')
+        },
+        {
+          path: 'note',
+          name: 'board-note',
+          component: () => import('@/views/Board-Note.vue')
+        },
+        {
+          path: 'module/:module/:type/:content',
+          name: 'board-module-detail',
+          component: () => import('@/views/Board-Module-Detail.vue')
+        },
+        {
+          path: 'module/:module',
+          name: 'board-module',
+          component: () => import('@/views/Board-Module.vue')
         }
       ]
     },

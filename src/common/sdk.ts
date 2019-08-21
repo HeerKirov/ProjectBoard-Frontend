@@ -10,9 +10,7 @@ export enum AuthResult {
     NO          //没有登录
 }
 
-interface Map<VALUE> {
-    [T: string]: VALUE
-}
+interface Map<VALUE> { [T: string]: VALUE }
 
 interface Return<T> {
     ok: boolean

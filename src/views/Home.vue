@@ -1,13 +1,7 @@
 <template lang="pug">
-    el-container
-        el-header
-            el-row
-                el-col(:span='4') &nbsp;
-                el-col(:span='16').text-center
-                    label PROJECT
-                el-col(:span='4').text-right
-                    label {{profile.name}}
-        el-main
+    div
+        top-bar
+        div.main-container.p-2
             div.board-view
                 el-card.box-card(v-for='project in projects', :key='project.id')
                     el-link.project-title(@click='OnClickProject(project.id)', :underline='false') {{project.name}}
@@ -19,11 +13,12 @@ import { Component, Vue } from 'vue-property-decorator'
 import { Message } from 'element-ui'
 import { SDK } from '@/common/sdk'
 import { Profile, EMPTY_PROFILE } from '@/common/models'
+import TopBar from '@/components/TopBar.vue'
 import '@/styles/layout.css'
 import '@/styles/padding.css'
 import '@/styles/margin.css'
 
-@Component({components: {}})
+@Component({components: {TopBar}})
 export default class Home extends Vue {
     profile: Profile = EMPTY_PROFILE
     projects: any[] = []
