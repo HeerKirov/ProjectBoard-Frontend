@@ -15,15 +15,15 @@ import '@/styles/board-layout.css'
 
 @Component({components: {}})
 export default class BoardNote extends Vue {
-    project: Project = EMPTY_PROJECT
-    projectId: string = ''
+    private project: Project = EMPTY_PROJECT
+    private projectId: string = ''
 
-    created() {
+    private created() {
         this.projectId = this.$route.params.project
     }
 
-    async requestForProject() {
-        let r = await SDK.projects.retrieve(this.projectId)
+    private async requestForProject() {
+        let r = await SDK.projects.retrieve({}, this.projectId)
         if(r.ok) {
             this.project = r.data
         }else{

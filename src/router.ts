@@ -30,6 +30,11 @@ export default new Router({
           component: () => import('@/views/Board-Note.vue')
         },
         {
+          path: 'task',
+          name: 'board-task',
+          component: () => import('@/views/Board-Task.vue')
+        },
+        {
           path: 'module/:module/:type/:content',
           name: 'board-module-detail',
           component: () => import('@/views/Board-Module-Detail.vue')

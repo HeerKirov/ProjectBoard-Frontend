@@ -1,6 +1,6 @@
 <template lang="pug">
     div.main-container
-        h4 module
+        h4 note
 </template>
 
 <script lang="ts">
@@ -14,7 +14,7 @@ import '@/styles/margin.css'
 import '@/styles/board-layout.css'
 
 @Component({components: {}})
-export default class BoardModule extends Vue {
+export default class BoardTask extends Vue {
     private project: Project = EMPTY_PROJECT
     private projectId: string = ''
 

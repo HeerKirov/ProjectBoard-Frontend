@@ -35,10 +35,39 @@ const ALERTS = {
 
 @Component({components: {}})
 export default class Index extends Vue {
-    loading: boolean = true
-    username: string = ''
-    password: string = ''
-    alert = {title: '', type: 'info'}
+    private loading: boolean = true
+    private username: string = ''
+    private password: string = ''
+    private alert = {title: '', type: 'info'}
+
+    private async created() {
+        let state = SDK.getState() == null ? await SDK.initialize() : SDK.getState();
+        if(state === AuthResult.OK) {
+            this.$router.push({name: 'home'})
+        }else{
+            this.loading = false
+            this.setAlertByAuthResult(state)
+        }
+    }
+
+    private async onLogin() {
+        if(!this.username || !this.password) {
+            this.alert = ALERTS.INPUT_REQUIRED
+            return
+        }
+        this.alert = ALERTS.DEFAULT
+        this.loading = true
+        let result = await SDK.authenticate(this.username, this.password)
+        if(result === AuthResult.OK) {
+            this.$router.push({name: 'home'})
+        }else{
+            this.loading = false
+            this.setAlertByAuthResult(result)
+        }
+    }
+    private onRegister() {
+        console.log('register')
+    }
 
     private setAlertByAuthResult(result: AuthResult | null) {
         switch(result) {
@@ -54,35 +83,6 @@ export default class Index extends Vue {
             default:
                 this.alert = ALERTS.DEFAULT
         }
-    }
-
-    async created() {
-        let state = SDK.getState() == null ? await SDK.initialize() : SDK.getState();
-        if(state === AuthResult.OK) {
-            this.$router.push({name: 'home'})
-        }else{
-            this.loading = false
-            this.setAlertByAuthResult(state)
-        }
-    }
-
-    async onLogin() {
-        if(!this.username || !this.password) {
-            this.alert = ALERTS.INPUT_REQUIRED
-            return
-        }
-        this.alert = ALERTS.DEFAULT
-        this.loading = true
-        let result = await SDK.authenticate(this.username, this.password)
-        if(result === AuthResult.OK) {
-            this.$router.push({name: 'home'})
-        }else{
-            this.loading = false
-            this.setAlertByAuthResult(result)
-        }
-    }
-    onRegister() {
-        console.log('register')
     }
 }
 </script>

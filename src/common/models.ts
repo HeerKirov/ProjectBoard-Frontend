@@ -14,19 +14,24 @@ export interface Profile {
     isStaff: boolean
 }
 
-export interface Project {
-    id: string
+export interface CProject {
     name: string
     description: string
+    archived?: boolean
+}
+export interface Project extends CProject {
+    id: string
     archived: boolean
     createTime: number
     updateTime: number
 }
 
-export interface Module {
-    id: string
+export interface CModule {
     name: string
     description: string
+}
+export interface Module extends CModule {
+    id: string
     createTime: number
     updateTime: number
 }

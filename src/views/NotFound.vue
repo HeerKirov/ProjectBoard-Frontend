@@ -17,7 +17,7 @@ import '@/styles/layout.css'
 
 @Component({components: {}})
 export default class NotFound extends Vue{
-    onBack() {
+    private onBack() {
         this.$router.back()
     }
 }

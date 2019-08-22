@@ -14,10 +14,10 @@ import '@/styles/layout.css'
 
 @Component
 export default class TopBar extends Vue {
-    profile: Profile = EMPTY_PROFILE
+    private profile: Profile = EMPTY_PROFILE
     @Prop() private showTitle!: boolean
 
-    created() {
+    private created() {
       SDK.profile.get().then(r => { if(r.ok) this.profile = r.data })
     }
 }

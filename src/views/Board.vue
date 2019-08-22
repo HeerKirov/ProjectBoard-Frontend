@@ -6,8 +6,8 @@
                     div.aside-header-title
                         label(style='line-height: 60px; color: #fff') {{project.name}}
                     div.aside-header-dropdown
-                        el-link(:underline='false', style='color: #fff', @click='onProjectDropdown')
-                            i(:class='openProjectList ? "el-icon-arrow-up" : "el-icon-arrow-down"')
+                        el-link(:underline='false', style='color: #fff', @click='onClickProjectDropdown')
+                            i(:class='openProjectList ? "el-icon-caret-top" : "el-icon-caret-bottom"')
             el-menu.aside-menu(:default-active='projectId', v-if='openProjectList',
                     :collapse-transition='false', @select='onSelectProjectList',
                     background-color='#646c74', text-color='#fff', active-text-color="#ffd04b")
@@ -18,7 +18,7 @@
                         :index='item.id')
                     i.el-icon-notebook-1
                     span(slot='title') {{item.name}}
-                el-link.aside-menu-button(:underline='false', @click='onProjectNew') 
+                el-link.aside-menu-button(:underline='false', @click='onClickProjectNew') 
                     i.el-icon-plus
                     span 新建项目…
             el-menu.aside-menu(:default-openeds='["module"]', v-else,
@@ -38,13 +38,14 @@
                     el-menu-item(v-for='(item, index) in modules', :key='item.id', 
                                 :index='`module-${item.id}`', :class='{"aside-menu-item": !collapse}') 
                         span(slot='title') {{item.name}}
-                    el-link.aside-menu-button(:underline='false', @click='onModuleNew') 
+                    el-link.aside-menu-button(:underline='false', @click='onClickModuleNew') 
                         i.el-icon-plus
                         span 新建模块…
         div(:class='collapse ? "main-collapse" : "main"')
             top-bar
             router-view
-        create-project-dialog(ref='createProjectDialog')
+        create-project-dialog(ref='createProjectDialog', @created='onProjectCreated')
+        create-module-dialog(ref='createModuleDialog', @created='onModuleCreated', :project-id='projectId')
 </template>
 
 <script lang="ts">
@@ -56,6 +57,7 @@ import { Project, EMPTY_PROJECT, Module } from '@/common/models'
 import { FormHandler } from '@/common/form'
 import TopBar from '@/components/TopBar.vue'
 import CreateProjectDialog from '@/components/CreateProjectDialog.vue'
+import CreateModuleDialog from '@/components/CreateModuleDialog.vue'
 import '@/styles/layout.css'
 import '@/styles/padding.css'
 import '@/styles/margin.css'
@@ -63,45 +65,45 @@ import '@/styles/board-layout.css'
 
 const COLLAPSE_PX = 800
 
-@Component({components: {TopBar, CreateProjectDialog}})
+@Component({components: {TopBar, CreateProjectDialog, CreateModuleDialog}})
 export default class Board extends Vue {
     //data
-    projects: Project[] = []
-    project: Project = EMPTY_PROJECT
-    modules: Module[] = []
-    projectId: string = ''
+    private projects: Project[] = []
+    private project: Project = EMPTY_PROJECT
+    private modules: Module[] = []
+    private projectId: string = ''
     
-    collapse: boolean = false                   //控制左侧aside是否折叠
-    openProjectList: boolean = false            //控制开启左侧的项目菜单列表
-    asideActiveIndex: string = 'summary'        //aside中激活的item
+    private collapse: boolean = false                   //控制左侧aside是否折叠
+    private openProjectList: boolean = false            //控制开启左侧的项目菜单列表
+    private asideActiveIndex: string = 'summary'        //aside中激活的item
     //lifetime event
-    mounted() {
+    private mounted() {
         //在挂载之后，将窗口大小变化的事件注册到handler，然后手动调用一次事件。
         //这个事件用于控制侧边栏的响应式变化。
         this.onWindowResize(document.documentElement.clientWidth, document.documentElement.clientHeight)
         FormHandler.onWindowResize(this.onWindowResize)
     }
-    created() {
+    private created() {
         //创建时同时执行created和update事件。
         this.onCreated()
         this.onUpdate()
     }
-    @Watch('$route') onRouteChanged(to: Route, from: Route) {
+    @Watch('$route') private onRouteChanged(to: Route, from: Route) {
         this.onUpdate()
     }
-    destroyed() {
+    private destroyed() {
         //销毁这个组件时注销该事件，以防事件堆积。
         FormHandler.cancelWindowResize(this.onWindowResize)
     }
     //gui event
-    onWindowResize(width: number, height: number) {
+    private onWindowResize(width: number, height: number) {
         //窗口大小改变时，根据窗口宽度决定是否要进入collapse模式。
         this.collapse = width < COLLAPSE_PX
         if(this.collapse) {
             this.openProjectList = false
         }
     }
-    onSelectAside(index: string) {
+    private onSelectAside(index: string) {
         //激活侧边栏按钮时，进行子页面跳转。
         if(index === 'summary') {
             this.$router.push({name: 'board', params: {project: this.projectId}})
@@ -112,7 +114,7 @@ export default class Board extends Vue {
             this.$router.push({name: 'board-module', params: {project: this.projectId, module}})
         }
     }
-    onSelectProjectList(index: string) {
+    private onSelectProjectList(index: string) {
         if(index === 'home') {
             this.$router.push({name: 'home'})
         }else{
@@ -120,23 +122,32 @@ export default class Board extends Vue {
         }
         this.openProjectList = false
     }
-    onProjectDropdown() {
+    private onClickProjectDropdown() {
         if(this.projects.length <= 0) {
             this.requestForProjectList().finally()
         }
         this.openProjectList = !this.openProjectList
     }
-    onProjectNew() {
+    private onClickProjectNew() {
         (this.$refs.createProjectDialog as CreateProjectDialog).open()
+        this.openProjectList = false
     }
-    onModuleNew() {
-
+    private onClickModuleNew() {
+        (this.$refs.createModuleDialog as CreateModuleDialog).open()
+    }
+    private onProjectCreated(projectId: string) {
+        this.$router.push({name: 'board', params: {project: projectId}})
+        this.requestForProjectList()
+    }
+    private onModuleCreated(moduleId: string) {
+        this.$router.push({name: 'board-module', params: {project: this.projectId, module: moduleId}})
+        this.requestForModuleList()
     }
     //logic event
-    onCreated() {
+    private onCreated() {
         //create
     }
-    onUpdate() {
+    private onUpdate() {
         //更新project id
         if(this.projectId !== this.$route.params.project) {
             this.projectId = this.$route.params.project
@@ -151,8 +162,8 @@ export default class Board extends Vue {
         else this.asideActiveIndex = ''
     }
     //method
-    async requestForProjectList() {
-        let r = await SDK.projects.list()
+    private async requestForProjectList() {
+        let r = await SDK.projects.list({})
         if(r.ok) {
             this.projects = r.data.result
         }else{
@@ -160,8 +171,8 @@ export default class Board extends Vue {
             Message({message: `服务器发生错误：${r.status}`, type: "error"})
         }
     }
-    async requestForProject() {
-        let r = await SDK.projects.retrieve(this.projectId)
+    private async requestForProject() {
+        let r = await SDK.projects.retrieve({}, this.projectId)
         if(r.ok) {
             this.project = r.data
         }else{
@@ -169,7 +180,7 @@ export default class Board extends Vue {
             Message({message: `服务器发生错误：${r.status}`, type: "error"})
         }
     }
-    async requestForModuleList() {
+    private async requestForModuleList() {
         //更新模块列表。
         let r = await SDK.modules.list({project: this.projectId})
         if(r.ok) {
@@ -200,6 +211,8 @@ export default class Board extends Vue {
     }
     .aside-menu {
         border-right: 0;
+        overflow: auto;
+        max-height: calc(100% - 60px)
     }
     .aside-menu-item {
         min-width: 164px;

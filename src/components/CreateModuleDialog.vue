@@ -1,12 +1,12 @@
 <template lang='pug'>
-    el-dialog(title='新建项目', :visible.sync='visible')
+    el-dialog(title='新建模块', :visible.sync='visible')
         el-row
-            b 项目名称
+            b 模块名称
             el-input(v-model='name')
             el-alert.mt-1(v-if='alert && alert.name', :title='alert.name', type='error', effect='dark', :closable='false')
         el-row
-            b 简介
-            text-box(v-model='description')
+            b 描述
+            el-input(v-model='description')
             el-alert.mt-1(v-if='alert && alert.description', :title='alert.description', type='error', effect='dark', :closable='false')
         div(slot='footer').dialog-footer
             el-button(type='primary', @click='onOK', :disabled='loading', v-loading='loading') 创建
@@ -25,7 +25,8 @@ interface AlertType {name?: string, description?: string}
 
 @Component({components: {TextBox}})
 //event: created
-export default class CreateProjectDialog extends Vue {
+export default class CreateModuleDialog extends Vue {
+    @Prop() private projectId!: string
     private name: string = ''
     private description: string = ''
 
@@ -37,7 +38,7 @@ export default class CreateProjectDialog extends Vue {
     private onOK() {
         this.alert = this.validate()
         if(this.alert == null) {
-            this.createProject()
+            this.createModule()
         }
     }
     //public method
@@ -56,19 +57,19 @@ export default class CreateProjectDialog extends Vue {
         let ret: AlertType = {}
         let flag = false
         if(!this.name) {
-            ret.name = '项目名称不能为空。'
+            ret.name = '模块名称不能为空。'
             flag = true
         }
         return flag ? ret : null
     }
-    private async createProject() {
+    private async createModule() {
         this.loading = true
-        let {ok, status, data} = await SDK.projects.create({}, {name: this.name, description: this.description})
+        let {ok, status, data} = await SDK.modules.create({project: this.projectId}, {name: this.name, description: this.description})
         if(ok) {
             this.close()
             this.clear()
             this.$emit('created', data.id)
-            //TODO 需要处理：创建完成之后，刷新board页面内module列表的问题。
+            //TODO 需要处理：创建完成之后，刷新board页面内project列表的问题。
         }else{
             Message({message: `服务器发生意料之外的错误: ${status}, ${data}`, type: 'error'})
         }

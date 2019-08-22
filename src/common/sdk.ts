@@ -1,6 +1,6 @@
 import Axios, {Method, AxiosResponse} from 'axios'
 import config from '@/config'
-import { Token, Profile, Project, Module } from './models'
+import { Token, Profile, Project, Module, CProject, CModule } from './models'
 
 export enum AuthResult {
     OK,         //登录成功
@@ -23,10 +23,10 @@ interface ListResult<T> {
     result: T[]
 }
 
-class RestEndpoint<T> {
+class RestEndpoint<T = number, CREATE = T, UPDATE = CREATE> {
     constructor(private sdk: SDKClass, private url: (params: Map<string>) => string) { }
 
-    async list(nest?: Map<string>): Promise<Return<ListResult<T>>> {
+    async list(nest: Map<string>): Promise<Return<ListResult<T>>> {
         let res = await this.sdk.request(this.url(nest || {}), 'GET', {}, null)
         if(res.status === 200) {
             return {ok: true, status: 200, data: res.data}
@@ -34,7 +34,15 @@ class RestEndpoint<T> {
             return {ok: false, status: res.status, data: res.data}
         }
     }
-    async retrieve(id: string, nest?: Map<string>): Promise<Return<T>> {
+    async create(nest: Map<string>, obj: CREATE): Promise<Return<T>> {
+        let res = await this.sdk.request(this.url(nest || {}), 'POST', {}, obj)
+        if(res.status === 201) {
+            return {ok: true, status: 201, data: res.data}
+        }else{
+            return {ok: false, status: res.status, data: res.data}
+        }
+    }
+    async retrieve(nest: Map<string>, id: string): Promise<Return<T>> {
         let res = await this.sdk.request(this.url(nest || {}) + id + '/', 'GET', {}, null)
         if(res.status === 200) {
             return {ok: true, status: 200, data: res.data}
@@ -50,7 +58,7 @@ class ProfileEndpoint {
 
     async get(): Promise<Return<Profile>> {
         if(this.profile == null) {
-            let res = await this.sdk.request('/profile', 'GET', {}, null)
+            let res = await this.sdk.request(this.url, 'GET', {}, null)
             if(res.status === 200) {
                 this.profile = res.data
                 return {ok: true, status: 200, data: res.data}
@@ -61,6 +69,7 @@ class ProfileEndpoint {
             return {ok: true, status: 200, data: this.profile}
         }
     }
+    //在更改profile时，需要更新本地的缓存。
 }
 
 class SDKClass {
@@ -178,8 +187,8 @@ class SDKClass {
 
     
     readonly profile = new ProfileEndpoint(this, '/profile/')
-    readonly projects = new RestEndpoint<Project>(this, p => `/projects/`)
-    readonly modules = new RestEndpoint<Module>(this, p => `/projects/${p.project}/modules/`)
+    readonly projects = new RestEndpoint<Project, CProject>(this, _ => `/projects/`)
+    readonly modules = new RestEndpoint<Module, CModule>(this, p => `/projects/${p.project}/modules/`)
 }
 
 export const SDK = new SDKClass()

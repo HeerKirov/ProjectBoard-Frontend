@@ -3,9 +3,15 @@
         top-bar
         div.main-container.p-2
             div.board-view
-                el-card.box-card(v-for='project in projects', :key='project.id')
-                    el-link.project-title(@click='OnClickProject(project.id)', :underline='false') {{project.name}}
+                el-card(v-for='project in projects', :key='project.id')
+                    el-link.project-title(@click='onClickProject(project.id)', :underline='false') {{project.name}}
                     div.project-desc {{project.description}}
+                el-card(shadow='hover')
+                    el-link.project-title(@click='onClickProjectNew', :underline='false') 
+                        i.el-icon-plus
+                        = '新建项目'
+                    div.project-desc &nbsp;
+        create-project-dialog(ref='createProjectDialog', @created='onProjectCreated')
 </template>
 
 <script lang="ts">
@@ -13,23 +19,24 @@ import { Component, Vue } from 'vue-property-decorator'
 import { Message } from 'element-ui'
 import { SDK } from '@/common/sdk'
 import { Profile, EMPTY_PROFILE } from '@/common/models'
+import CreateProjectDialog from '@/components/CreateProjectDialog.vue'
 import TopBar from '@/components/TopBar.vue'
 import '@/styles/layout.css'
 import '@/styles/padding.css'
 import '@/styles/margin.css'
 
-@Component({components: {TopBar}})
+@Component({components: {TopBar, CreateProjectDialog}})
 export default class Home extends Vue {
-    profile: Profile = EMPTY_PROFILE
-    projects: any[] = []
+    private profile: Profile = EMPTY_PROFILE
+    private projects: any[] = []
 
-    async created() {
+    private async created() {
         this.requestForProjectList()
         SDK.profile.get().then(r => { if(r.ok) this.profile = r.data })
     }
 
-    async requestForProjectList() {
-        let r = await SDK.projects.list()
+    private async requestForProjectList() {
+        let r = await SDK.projects.list({})
         if(r.ok) {
             this.projects = r.data.result
         }else{
@@ -38,26 +45,25 @@ export default class Home extends Vue {
         }
     }
 
-    OnClickProject(projectId: string) {
+    private onClickProject(projectId: string) {
+        this.$router.push({name: 'board', params: {project: projectId}})
+    }
+    private onClickProjectNew() {
+        (this.$refs.createProjectDialog as CreateProjectDialog).open()
+    }
+    private onProjectCreated(projectId: string) {
         this.$router.push({name: 'board', params: {project: projectId}})
     }
 }
 </script>
 
 <style scoped>
-    .el-container {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-    }
-    .el-header {
-        border-bottom: 1px solid #d7dae2;
-        line-height: 60px
-    }
     .board-view {
         display: grid;
         grid-gap: 10px;
         grid-template-columns: repeat(auto-fit, 300px);
+        overflow: auto;
+        max-height: 100%;
     }
     .project-title {
         font-size: 16px;
