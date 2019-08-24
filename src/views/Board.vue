@@ -30,7 +30,10 @@
                     span(slot='title') 总览
                 el-menu-item(index='note')
                     i.el-icon-notebook-2
-                    span(slot='title') 笔记
+                    span(slot='title') 笔记列表
+                el-menu-item(index='task')
+                    i.el-icon-s-management
+                    span(slot='title') 任务列表
                 el-submenu(index='module')
                     template(slot='title')
                         i.el-icon-folder
@@ -109,6 +112,8 @@ export default class Board extends Vue {
             this.$router.push({name: 'board', params: {project: this.projectId}})
         }else if(index === 'note') {
             this.$router.push({name: 'board-note', params: {project: this.projectId}})
+        }else if(index === 'task') {
+            this.$router.push({name: 'board-task', params: {project: this.projectId}})
         }else if(index !== null && index.startsWith('module-')) {
             let module = index.slice('module-'.length)
             this.$router.push({name: 'board-module', params: {project: this.projectId, module}})
@@ -156,12 +161,16 @@ export default class Board extends Vue {
             this.requestForModuleList()
         }
         //监视route的变化，以更改侧边栏按钮的选中状态。
+        this.updateAsideStatus()
+    }
+    //method
+    private updateAsideStatus() {
         if(this.$route.name === 'board') this.asideActiveIndex = 'summary'
         else if(this.$route.name!.startsWith('board-note')) this.asideActiveIndex = 'note'
+        else if(this.$route.name!.startsWith('board-task')) this.asideActiveIndex = 'task'
         else if(this.$route.name!.startsWith('board-module')) this.asideActiveIndex = `module-${this.$route.params.module}`
         else this.asideActiveIndex = ''
     }
-    //method
     private async requestForProjectList() {
         let r = await SDK.projects.list({})
         if(r.ok) {

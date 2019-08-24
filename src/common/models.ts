@@ -12,11 +12,13 @@ export interface Profile {
     name: string
     dateJoined: number
     isStaff: boolean
+    avatarId: string | null
 }
 
 export interface CProject {
     name: string
     description: string
+    content: string
     archived?: boolean
 }
 export interface Project extends CProject {
@@ -24,6 +26,7 @@ export interface Project extends CProject {
     archived: boolean
     createTime: number
     updateTime: number
+    coverId: string | null
 }
 
 export interface CModule {
@@ -37,5 +40,5 @@ export interface Module extends CModule {
 }
 
 
-export const EMPTY_PROFILE: Profile = {username: '', name: '', dateJoined: 0, isStaff: false}
-export const EMPTY_PROJECT: Project = {id: '', name: '', description: '', archived: false, createTime: 0, updateTime: 0}
+export const EMPTY_PROFILE: Profile = {username: '', name: '', dateJoined: 0, isStaff: false, avatarId: null}
+export const EMPTY_PROJECT: Project = {id: '', name: '', description: '', archived: false, createTime: 0, updateTime: 0, coverId: null}

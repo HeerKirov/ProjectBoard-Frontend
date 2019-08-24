@@ -2,11 +2,11 @@
     el-dialog(title='新建模块', :visible.sync='visible')
         el-row
             b 模块名称
-            el-input(v-model='name')
+            el-input(v-model='name', placeholder='模块名称')
             el-alert.mt-1(v-if='alert && alert.name', :title='alert.name', type='error', effect='dark', :closable='false')
         el-row
             b 描述
-            el-input(v-model='description')
+            el-input(v-model='description', placeholder='用一句话简要描述模块的作用')
             el-alert.mt-1(v-if='alert && alert.description', :title='alert.description', type='error', effect='dark', :closable='false')
         div(slot='footer').dialog-footer
             el-button(type='primary', @click='onOK', :disabled='loading', v-loading='loading') 创建

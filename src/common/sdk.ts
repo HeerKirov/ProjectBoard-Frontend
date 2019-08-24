@@ -72,6 +72,14 @@ class ProfileEndpoint {
     //在更改profile时，需要更新本地的缓存。
 }
 
+class ResourceImageEndpoint {
+    constructor(private sdk: SDKClass, private url: string) { }
+
+    signURL(filename: string): string {
+        return `${config.API_ADDRESS}${this.url}${filename}`
+    }
+}
+
 class SDKClass {
     private static readonly EFFECTIVE = 1000 * 60 * 60 * 24 * 3
     private readonly headers: any = {'Content-Type': 'application/json', 'Authorization': ''}
@@ -189,6 +197,7 @@ class SDKClass {
     readonly profile = new ProfileEndpoint(this, '/profile/')
     readonly projects = new RestEndpoint<Project, CProject>(this, _ => `/projects/`)
     readonly modules = new RestEndpoint<Module, CModule>(this, p => `/projects/${p.project}/modules/`)
+    readonly resourceImages = new ResourceImageEndpoint(this, '/resource/images/')
 }
 
 export const SDK = new SDKClass()

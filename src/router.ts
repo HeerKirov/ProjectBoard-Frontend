@@ -25,6 +25,21 @@ export default new Router({
           component: () => import('@/views/Board-Summary.vue')
         },
         {
+          path: 'note/new',
+          name: 'board-note-new',
+          component: () => import('@/views/Board-Note-Detail.vue')
+        },
+        {
+          path: 'note/:note',
+          name: 'board-note-detail',
+          component: () => import('@/views/Board-Note-Detail.vue')
+        },
+        {
+          path: 'task/:task',
+          name: 'board-task-detail',
+          component: () => import('@/views/Board-Task-Detail.vue')
+        },
+        {
           path: 'note',
           name: 'board-note',
           component: () => import('@/views/Board-Note.vue')
@@ -35,9 +50,24 @@ export default new Router({
           component: () => import('@/views/Board-Task.vue')
         },
         {
-          path: 'module/:module/:type/:content',
-          name: 'board-module-detail',
-          component: () => import('@/views/Board-Module-Detail.vue')
+          path: 'module/:module/note/new',
+          name: 'board-module-note-new',
+          component: () => import('@/views/Board-Note-Detail.vue')
+        },
+        {
+          path: 'module/:module/task/new',
+          name: 'board-module-task-new',
+          component: () => import('@/views/Board-Task-Detail.vue')
+        },
+        {
+          path: 'module/:module/note/:note',
+          name: 'board-module-note-detail',
+          component: () => import('@/views/Board-Note-Detail.vue')
+        },
+        {
+          path: 'module/:module/task/:task',
+          name: 'board-module-task-detail',
+          component: () => import('@/views/Board-Task-Detail.vue')
         },
         {
           path: 'module/:module',

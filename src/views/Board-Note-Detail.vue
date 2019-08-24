@@ -6,7 +6,7 @@
                     i.el-icon-s-home
                     span(slot='title') 主页
         div.content-container
-            h4 module detail
+            h4 note detail
 </template>
 
 <script lang="ts">
@@ -20,7 +20,7 @@ import '@/styles/margin.css'
 import '@/styles/board-layout.css'
 
 @Component({components: {}})
-export default class BoardModuleDetail extends Vue {
+export default class BoardNoteDetail extends Vue {
     private project: Project = EMPTY_PROJECT
     private projectId: string = ''
 
