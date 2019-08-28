@@ -3,10 +3,10 @@
         div.h-100.aside-color(:class='collapse ? "aside-collapse" : "aside"')
             div.aside-header
                 template(v-if='!collapse')
-                    div.aside-header-title
-                        label(style='line-height: 60px; color: #fff') {{project.name}}
-                    div.aside-header-dropdown
-                        el-link(:underline='false', style='color: #fff', @click='onClickProjectDropdown')
+                    div.aside-header-title(@click='onClickProjectDropdown')
+                        label.aside-header-text {{project.name}}
+                    div.aside-header-dropdown(@click='onClickProjectDropdown')
+                        label.aside-header-text(:underline='false')
                             i(:class='openProjectList ? "el-icon-caret-top" : "el-icon-caret-bottom"')
             el-menu.aside-menu(:default-active='projectId', v-if='openProjectList',
                     :collapse-transition='false', @select='onSelectProjectList',
@@ -30,10 +30,7 @@
                     span(slot='title') 总览
                 el-menu-item(index='note')
                     i.el-icon-notebook-2
-                    span(slot='title') 笔记列表
-                el-menu-item(index='task')
-                    i.el-icon-s-management
-                    span(slot='title') 任务列表
+                    span(slot='title') 笔录
                 el-submenu(index='module')
                     template(slot='title')
                         i.el-icon-folder
@@ -112,8 +109,6 @@ export default class Board extends Vue {
             this.$router.push({name: 'board', params: {project: this.projectId}})
         }else if(index === 'note') {
             this.$router.push({name: 'board-note', params: {project: this.projectId}})
-        }else if(index === 'task') {
-            this.$router.push({name: 'board-task', params: {project: this.projectId}})
         }else if(index !== null && index.startsWith('module-')) {
             let module = index.slice('module-'.length)
             this.$router.push({name: 'board-module', params: {project: this.projectId, module}})
@@ -167,7 +162,6 @@ export default class Board extends Vue {
     private updateAsideStatus() {
         if(this.$route.name === 'board') this.asideActiveIndex = 'summary'
         else if(this.$route.name!.startsWith('board-note')) this.asideActiveIndex = 'note'
-        else if(this.$route.name!.startsWith('board-task')) this.asideActiveIndex = 'task'
         else if(this.$route.name!.startsWith('board-module')) this.asideActiveIndex = `module-${this.$route.params.module}`
         else this.asideActiveIndex = ''
     }
@@ -233,12 +227,19 @@ export default class Board extends Vue {
     .aside-header-title {
         margin-left: 15px;
         display: inline-block;
-        width: calc(100% - 1em - 25px)
+        width: calc(100% - 1em - 25px);
+        cursor: pointer;
     }
     .aside-header-dropdown {
         text-align: right;
         display: inline-block;
-        width: 1em
+        width: 1em;
+        cursor: pointer;
+    }
+    .aside-header-text {
+        line-height: 60px; 
+        color: #fff;
+        cursor: pointer;
     }
     .aside-menu-button {
         color: #ccc; 

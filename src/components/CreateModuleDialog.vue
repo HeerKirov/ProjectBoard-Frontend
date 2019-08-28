@@ -69,7 +69,6 @@ export default class CreateModuleDialog extends Vue {
             this.close()
             this.clear()
             this.$emit('created', data.id)
-            //TODO 需要处理：创建完成之后，刷新board页面内project列表的问题。
         }else{
             Message({message: `服务器发生意料之外的错误: ${status}, ${data}`, type: 'error'})
         }

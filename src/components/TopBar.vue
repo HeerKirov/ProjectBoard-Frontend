@@ -2,7 +2,7 @@
   div.main-header
     label.mid-title(v-show='showTitle === undefined ? true : showTitle') PROJECT
     div.profile-box.text-right
-        label {{profile.name}}
+        el-link {{profile.name}}
     div.avatar-box
         img.avatar(:src='signAvatar(profile.avatarId)')
 </template>
@@ -49,14 +49,14 @@ private readonly EMPTY_AVATAR = require('@/assets/empty_avatar.jpg')
     right: 0;
     height: 100%;
     line-height: 60px;
-    width: 140px;
+    width: 100px;
     padding-right: calc(12px + 36px + 5px);
 }
 .avatar-box {
     position: absolute;
     right: 0;
-    top: 20%;
-    height: 60%;
+    top: 22.5%;
+    height: 55%;
     padding-right: 12px;
 }
 .avatar {

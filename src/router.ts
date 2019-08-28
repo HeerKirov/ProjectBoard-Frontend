@@ -19,56 +19,67 @@ export default new Router({
       path: '/board/:project',
       component: () => import('@/views/Board.vue'),
       children: [
+        //总览页面
         {
           path: '',
           name: 'board',
           component: () => import('@/views/Board-Summary.vue')
         },
+        //project下的note系列页面(复用)
         {
           path: 'note/new',
           name: 'board-note-new',
-          component: () => import('@/views/Board-Note-Detail.vue')
+          component: () => import('@/views/Board-NoteNew.vue')
         },
         {
           path: 'note/:note',
           name: 'board-note-detail',
-          component: () => import('@/views/Board-Note-Detail.vue')
-        },
-        {
-          path: 'task/:task',
-          name: 'board-task-detail',
-          component: () => import('@/views/Board-Task-Detail.vue')
+          component: () => import('@/views/Board-NoteDetail.vue')
         },
         {
           path: 'note',
           name: 'board-note',
-          component: () => import('@/views/Board-Note.vue')
+          component: () => import('@/views/Board-NoteList.vue')
         },
-        {
-          path: 'task',
-          name: 'board-task',
-          component: () => import('@/views/Board-Task.vue')
-        },
+        //module下的note系列页面
         {
           path: 'module/:module/note/new',
           name: 'board-module-note-new',
-          component: () => import('@/views/Board-Note-Detail.vue')
-        },
-        {
-          path: 'module/:module/task/new',
-          name: 'board-module-task-new',
-          component: () => import('@/views/Board-Task-Detail.vue')
+          component: () => import('@/views/Board-NoteNew.vue')
         },
         {
           path: 'module/:module/note/:note',
           name: 'board-module-note-detail',
-          component: () => import('@/views/Board-Note-Detail.vue')
+          component: () => import('@/views/Board-NoteDetail.vue')
         },
         {
-          path: 'module/:module/task/:task',
-          name: 'board-module-task-detail',
-          component: () => import('@/views/Board-Task-Detail.vue')
+          path: 'module/:module/note',
+          name: 'board-module-note',
+          component: () => import('@/views/Board-NoteList.vue')
         },
+        //module下的task系列页面
+        {
+          path: 'module/:module/task',
+          component: () => import('@/views/Board-Task.vue'),
+          children: [
+            {
+              path: '',
+              name: 'board-module-task',
+              component: () => import('@/views/Board-Task-Summary.vue')
+            },
+            {
+              path: ':task',
+              name: 'board-module-task-detail',
+              component: () => import('@/views/Board-Task-Detail.vue')
+            },
+            {
+              path: 'new',
+              name: 'board-module-task-new',
+              component: () => import('@/views/Board-Task-New.vue')
+            },
+          ]
+        },
+        //module总览页
         {
           path: 'module/:module',
           name: 'board-module',

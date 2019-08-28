@@ -1,7 +1,12 @@
 <template lang="pug">
-    div.main-container
-        h4 task
-        router-view
+    div.root-container
+        div.h-100.aside
+            el-menu.aside-menu(:collapse-transition='false')
+                el-menu-item(index='home')
+                    i.el-icon-s-home
+                    span(slot='title') 主页
+        div.content-container
+            h4 task summary
 </template>
 
 <script lang="ts">
@@ -15,7 +20,7 @@ import '@/styles/margin.css'
 import '@/styles/board-layout.css'
 
 @Component({components: {}})
-export default class BoardTask extends Vue {
+export default class BoardTaskDetail extends Vue {
     private project: Project = EMPTY_PROJECT
     private projectId: string = ''
 
@@ -36,5 +41,30 @@ export default class BoardTask extends Vue {
 </script>
 
 <style scoped>
-
+    .root-container {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+    }
+    .aside {
+        position: absolute;
+        width: 200px;
+        background-color: #fff;
+        border-right: 1px solid #d7dae2;
+    }
+    .aside-header {
+        height: 60px;
+        border-bottom: 1px solid #d7dae2;
+    }
+    .aside-menu {
+        border-right: 0;
+    }
+    .content-container {
+        top: 60px;
+        left: 200px;
+        position: absolute;
+        overflow: auto;
+        height: calc(100% - 60px);
+        width: calc(100% - 200px);
+    }
 </style>

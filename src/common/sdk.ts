@@ -1,6 +1,6 @@
 import Axios, {Method, AxiosResponse} from 'axios'
 import config from '@/config'
-import { Token, Profile, Project, Module, CProject, CModule } from './models'
+import { Token, Profile, Project, Module, Note, CProject, CModule, CNote, Task, CTask } from './models'
 
 export enum AuthResult {
     OK,         //登录成功
@@ -23,10 +23,21 @@ interface ListResult<T> {
     result: T[]
 }
 
+type RestMethod = "LIST" | "CREATE" | "RETRIEVE" | "UPDATE" | "DELETE"
+
 class RestEndpoint<T = number, CREATE = T, UPDATE = CREATE> {
-    constructor(private sdk: SDKClass, private url: (params: Map<string>) => string) { }
+    private methods: {[key: string]: boolean} | null = null
+    constructor(private sdk: SDKClass, private url: (params: Map<string>) => string, methods?: RestMethod[]) {
+        if(methods) {
+            this.methods = {}
+            for(let method of methods) {
+                this.methods[method] = true
+            }
+        }
+    }
 
     async list(nest: Map<string>): Promise<Return<ListResult<T>>> {
+        if(this.methods && !this.methods.LIST) throw new Error('List is not allowed.')
         let res = await this.sdk.request(this.url(nest || {}), 'GET', {}, null)
         if(res.status === 200) {
             return {ok: true, status: 200, data: res.data}
@@ -35,6 +46,7 @@ class RestEndpoint<T = number, CREATE = T, UPDATE = CREATE> {
         }
     }
     async create(nest: Map<string>, obj: CREATE): Promise<Return<T>> {
+        if(this.methods && !this.methods.CREATE) throw new Error('Create is not allowed.')
         let res = await this.sdk.request(this.url(nest || {}), 'POST', {}, obj)
         if(res.status === 201) {
             return {ok: true, status: 201, data: res.data}
@@ -43,6 +55,7 @@ class RestEndpoint<T = number, CREATE = T, UPDATE = CREATE> {
         }
     }
     async retrieve(nest: Map<string>, id: string): Promise<Return<T>> {
+        if(this.methods && !this.methods.RETRIEVE) throw new Error('Retrieve is not allowed.')
         let res = await this.sdk.request(this.url(nest || {}) + id + '/', 'GET', {}, null)
         if(res.status === 200) {
             return {ok: true, status: 200, data: res.data}
@@ -197,6 +210,11 @@ class SDKClass {
     readonly profile = new ProfileEndpoint(this, '/profile/')
     readonly projects = new RestEndpoint<Project, CProject>(this, _ => `/projects/`)
     readonly modules = new RestEndpoint<Module, CModule>(this, p => `/projects/${p.project}/modules/`)
+    readonly moduleNotes = new RestEndpoint<Note, CNote>(this, p => `/projects/${p.project}/modules/${p.module}/notes/`, ['LIST', 'CREATE'])
+    readonly moduleTasks = new RestEndpoint<Task, CTask>(this, p => `/projects/${p.project}/modules/${p.module}/tasks/`, ['LIST', 'CREATE'])
+    readonly notes = new RestEndpoint<Note, CNote>(this, p => `/notes/`, ['RETRIEVE', 'UPDATE', 'DELETE'])
+    readonly tasks = new RestEndpoint<Task, CTask>(this, p => `/tasks/`, ['RETRIEVE', 'UPDATE', 'DELETE'])
+
     readonly resourceImages = new ResourceImageEndpoint(this, '/resource/images/')
 }
 

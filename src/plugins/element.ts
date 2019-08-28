@@ -1,11 +1,13 @@
 import Vue from 'vue'
-import {Aside, Button, Card, Col, 
+import {Aside, Button, Card, Col, Table, TableColumn,
     Container, Header, Input, Link, 
     Main, Menu, Row, Loading, Alert, 
     MenuItem, MenuItemGroup, Submenu, Tooltip, 
     Dropdown, DropdownMenu, DropdownItem, Dialog} from 'element-ui'
 
 Vue.use(Button)
+Vue.use(Table)
+Vue.use(TableColumn)
 Vue.use(Container)
 Vue.use(Header)
 Vue.use(Aside)

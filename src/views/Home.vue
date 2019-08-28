@@ -21,7 +21,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Message } from 'element-ui'
 import { SDK } from '@/common/sdk'
-import { Profile, EMPTY_PROFILE } from '@/common/models'
+import { Profile, EMPTY_PROFILE, Project } from '@/common/models'
 import CreateProjectDialog from '@/components/CreateProjectDialog.vue'
 import TopBar from '@/components/TopBar.vue'
 import '@/styles/layout.css'
@@ -33,7 +33,7 @@ export default class Home extends Vue {
     private readonly EMPTY_COVER = require('@/assets/empty_cover.jpg')
 
     private profile: Profile = EMPTY_PROFILE
-    private projects: any[] = []
+    private projects: Project[] = []
 
     private async created() {
         this.requestForProjectList()

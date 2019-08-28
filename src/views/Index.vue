@@ -15,7 +15,8 @@
                 el-button(type="success", @click='onLogin') 登 录
             el-col(:span="12")
                 div.text-right
-                    el-link.mt-1.mb-1(type="primary", @click='onRegister') 注册 >>
+                    el-link.mt-1.mb-1(type="primary", @click='onRegister') 注册
+                        i.el-icon-d-arrow-right
 </template>
 
 <script lang="ts">
@@ -43,7 +44,7 @@ export default class Index extends Vue {
     private async created() {
         let state = SDK.getState() == null ? await SDK.initialize() : SDK.getState();
         if(state === AuthResult.OK) {
-            this.$router.push({name: 'home'})
+            this.$router.replace({name: 'home'})
         }else{
             this.loading = false
             this.setAlertByAuthResult(state)
