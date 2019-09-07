@@ -10,7 +10,7 @@
             el-alert.mt-1(v-if='alert && alert.description', :title='alert.description', type='error', effect='dark', :closable='false')
         el-row
             b 内容介绍
-            text-box(v-model='content', placeholder='项目的主要介绍内容.markdown')
+            text-box(v-model='content', placeholder='项目的主要介绍内容。支持Markdown语法')
             el-alert.mt-1(v-if='alert && alert.description', :title='alert.description', type='error', effect='dark', :closable='false')
         div(slot='footer').dialog-footer
             el-button(type='primary', @click='onOK', :disabled='loading', v-loading='loading') 创建

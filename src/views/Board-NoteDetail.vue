@@ -10,7 +10,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Route } from 'vue-router'
 import { Message } from 'element-ui'
 import { SDK } from '@/common/sdk'
 import { Profile, Project, EMPTY_PROFILE, EMPTY_PROJECT, Module } from '@/common/models'
@@ -25,18 +26,20 @@ export default class BoardNoteDetail extends Vue {
     private projectId: string = ''
 
     private created() {
-        this.projectId = this.$route.params.project
+        this.onCreated()
+        this.onUpdate()
+    }
+    @Watch('$route') private onRouteChanged(to: Route, from: Route) {
+        this.onUpdate()
     }
 
-    private async requestForProject() {
-        let r = await SDK.projects.retrieve({}, this.projectId)
-        if(r.ok) {
-            this.project = r.data
-        }else{
-            this.project = EMPTY_PROJECT
-            Message({message: `服务器发生错误：${r.status}`, type: "error"})
-        }
+    protected onCreated() {
+
     }
+    protected onUpdate() {
+        
+    }
+    
 }
 </script>
 

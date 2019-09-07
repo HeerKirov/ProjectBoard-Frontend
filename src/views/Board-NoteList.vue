@@ -17,7 +17,7 @@
                             el-link(@click='onNoteItem(scope.row)') {{scope.row.title}}
                     el-table-column(v-if='showModuleColumn', prop='module', label='模块', sortable)
                     el-table-column(prop='updateTime', label='修改时间', width='125px', sortable, :formatter='tableFormatUpdateTime')
-                    el-table-column(prop='createTime', label='创建时间', width='150px', sortable, :formatter='tableFormatCreateTime')
+                    el-table-column(prop='createTime', label='创建时间', width='125px', sortable, :formatter='tableFormatCreateTime')
 </template>
 
 <script lang="ts">
@@ -48,6 +48,16 @@ export default class BoardNote extends Vue {
         this.onUpdate()
     }
 
+    protected onCreated() { }
+    protected onUpdate() {
+        this.showModuleColumn = this.$route.name !== 'board-module-note'
+        if(this.moduleId !== this.$route.params.module) {
+            this.projectId = this.$route.params.project
+            this.moduleId = this.$route.params.module
+            this.requestForNoteList()
+        }
+    }
+
     private onBack() {
         this.$router.push({name: 'board-module', params: {project: this.projectId, module: this.moduleId}})
     }
@@ -56,16 +66,6 @@ export default class BoardNote extends Vue {
     }
     private onNoteCreate() {
         this.$router.push({name: 'board-module-note-new', params: {project: this.projectId, module: this.moduleId}})
-    }
-
-    private onCreated() { }
-    private onUpdate() {
-        this.showModuleColumn = this.$route.name !== 'board-module-note'
-        if(this.moduleId !== this.$route.params.module) {
-            this.projectId = this.$route.params.project
-            this.moduleId = this.$route.params.module
-            this.requestForNoteList()
-        }
     }
 
     private async requestForNoteList() {
@@ -82,7 +82,7 @@ export default class BoardNote extends Vue {
         return DateFormatter.toFriendly(row.updateTime)
     }
     private tableFormatCreateTime(row: Note): string {
-        return DateFormatter.toDateTime(row.createTime)
+        return DateFormatter.toFriendly(row.createTime)
     }
 }
 </script>

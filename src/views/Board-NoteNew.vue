@@ -1,70 +1,73 @@
 <template lang="pug">
-    div.root-container
-        div.h-100.aside
-            el-menu.aside-menu(:collapse-transition='false')
-                el-menu-item(index='home')
-                    i.el-icon-s-home
-                    span(slot='title') 主页
-        div.content-container
-            h4 note new
+    div
+        div.header-container
+            div.left
+                el-link.pl-1.pr-1(@click='onBack')
+                    i.el-icon-d-arrow-left
+                    = '笔录'
+        div.main-container.pt-1.pl-1.pr-1
+            div.title-text-div
+                text-line.title-text(v-model='title', placeholder='在此处书写标题')
+            div.content-text-div
+                text-box(theme='empty', :auto-resize='false', placeholder='在此处书写内容。支持Markdown语法与工具·')
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Route } from 'vue-router'
 import { Message } from 'element-ui'
 import { SDK } from '@/common/sdk'
 import { Profile, Project, EMPTY_PROFILE, EMPTY_PROJECT, Module } from '@/common/models'
+import TextLine from '@/components/TextLine.vue'
+import TextBox from '@/components/TextBox.vue'
 import '@/styles/layout.css'
 import '@/styles/padding.css'
 import '@/styles/margin.css'
 import '@/styles/board-layout.css'
 
-@Component({components: {}})
+@Component({components: {TextLine, TextBox}})
 export default class BoardNoteNew extends Vue {
-    private project: Project = EMPTY_PROJECT
-    private projectId: string = ''
+    private title: string = ''
+    private content: string = ''
+
+    private projectId!: string
+    private moduleId!: string
 
     private created() {
-        this.projectId = this.$route.params.project
+        //创建时同时执行created和update事件。
+        this.onCreated()
+        this.onUpdate()
+    }
+    @Watch('$route') private onRouteChanged(to: Route, from: Route) {
+        this.onUpdate()
     }
 
-    private async requestForProject() {
-        let r = await SDK.projects.retrieve({}, this.projectId)
-        if(r.ok) {
-            this.project = r.data
-        }else{
-            this.project = EMPTY_PROJECT
-            Message({message: `服务器发生错误：${r.status}`, type: "error"})
+    protected onCreated() { }
+    protected onUpdate() {
+        if(this.moduleId !== this.$route.params.module) {
+            this.projectId = this.$route.params.project
+            this.moduleId = this.$route.params.module
         }
     }
+
+    private onBack() {
+        this.$router.push({name: 'board-module-note', params: {project: this.projectId, module: this.moduleId}})
+    } 
 }
 </script>
 
 <style scoped>
-    .root-container {
-        position: absolute;
-        height: 100%;
-        width: 100%;
+    .title-text-div {
+        border-bottom: 1px solid #DCDFE6;
     }
-    .aside {
-        position: absolute;
-        width: 200px;
-        background-color: #fff;
-        border-right: 1px solid #d7dae2;
+    .title-text {
+        font-size: 18px;
+        line-height: 25px;
     }
-    .aside-header {
-        height: 60px;
-        border-bottom: 1px solid #d7dae2;
-    }
-    .aside-menu {
-        border-right: 0;
-    }
-    .content-container {
-        top: 60px;
-        left: 200px;
-        position: absolute;
-        overflow: auto;
-        height: calc(100% - 60px);
-        width: calc(100% - 200px);
+    .content-text-div {
+        height: calc(100% - 36px);
+        box-sizing: border-box;
+        /* padding: 5px; */
+        /* overflow: auto; */
     }
 </style>

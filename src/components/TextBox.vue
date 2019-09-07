@@ -1,11 +1,15 @@
 <template lang='pug'>
-    textarea.el-textarea__inner(ref='textareaBox', style='resize: none', v-model='text', @keydown.tab.prevent='onTab')
+    textarea(:class='[classTheme, classMaxSize]', 
+            ref='textareaBox', 
+            v-model='text', 
+            @keydown.tab.prevent='onTab').resize-none.markdown-family
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import '@/styles/board-layout.css'
 import '@/styles/layout.css'
+import '@/styles/font.css';
 
 function generateSpace(size: number): string {
     let ret = ''
@@ -18,11 +22,16 @@ const TAB_SPACE = generateSpace(TAB_SPACE_SIZE)
 
 @Component
 export default class TextBox extends Vue {
+    @Prop() private theme!: string
     @Prop() private value!: string
+    @Prop() private autoResize!: boolean
+
     private text: string = this.value || ''
 
     private mounted() {
-        TextBox.expandTextArea(this.$refs.textareaBox as Element)
+        if(this.autoResize === true || this.autoResize === undefined) {
+            TextBox.expandTextArea(this.$refs.textareaBox as Element)
+        }
     }
 
     @Watch('value') private onValueChange(val: string) {
@@ -40,7 +49,17 @@ export default class TextBox extends Vue {
         this.$emit('input', el.value)
     }
 
-    static expandTextArea(el: Element) {
+    private get classTheme() {
+        if(!this.theme || this.theme === 'element') return 'el-textarea__inner'
+        else if(this.theme === 'empty') return 'empty-block'
+        else return ''
+    }
+    private get classMaxSize() {
+        if(this.autoResize === false) return 'max-height'
+        else return null
+    }
+
+    private static expandTextArea(el: Element) {
         let timer: number | null = null
         function setStyle(el: any, auto: boolean = false) {
             if (auto) el.style.height = 'auto';
@@ -52,21 +71,23 @@ export default class TextBox extends Vue {
 }
 </script>
 
-<style>
-    .markdown-textarea {
+<style scoped>
+    .max-height {
+        height: 100%;
+    }
+    .resize-none {
+        resize: none;
+    }
+    .empty-block {
         display: inline-block;
         width: 100%;
-        line-height: 25px;
-        border-top: 1px solid #DCDFE6;
-        border-bottom: 1px solid #DCDFE6;
-        border-left: 0;
-        border-right: 0;
-        border-radius: 4px;
-        /* outline-style: ridge; */
-        outline-width: 2px;
-        padding: 5px 15px;
+        border: 0;
+        outline-width: 0;
+        padding: 5px 5px 0px 5px;
         box-sizing: border-box;
         font-size: inherit;
-        resize: vertical;
+    }
+    .markdown-family {
+        font-family: monaco
     }
 </style>

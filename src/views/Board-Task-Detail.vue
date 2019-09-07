@@ -10,7 +10,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Route } from 'vue-router'
 import { Message } from 'element-ui'
 import { SDK } from '@/common/sdk'
 import { Profile, Project, EMPTY_PROFILE, EMPTY_PROJECT, Module } from '@/common/models'
@@ -22,49 +23,21 @@ import '@/styles/board-layout.css'
 @Component({components: {}})
 export default class BoardTaskDetail extends Vue {
     private project: Project = EMPTY_PROJECT
-    private projectId: string = ''
+    private projectId!: string
 
     private created() {
-        this.projectId = this.$route.params.project
+        this.onCreated()
+        this.onUpdate()
+    }
+    @Watch('$route') private onRouteChanged(to: Route, from: Route) {
+        this.onUpdate()
     }
 
-    private async requestForProject() {
-        let r = await SDK.projects.retrieve({}, this.projectId)
-        if(r.ok) {
-            this.project = r.data
-        }else{
-            this.project = EMPTY_PROJECT
-            Message({message: `服务器发生错误：${r.status}`, type: "error"})
-        }
-    }
+    protected onCreated() {}
+    protected onUpdate() {}
 }
 </script>
 
 <style scoped>
-    .root-container {
-        position: absolute;
-        height: 100%;
-        width: 100%;
-    }
-    .aside {
-        position: absolute;
-        width: 200px;
-        background-color: #fff;
-        border-right: 1px solid #d7dae2;
-    }
-    .aside-header {
-        height: 60px;
-        border-bottom: 1px solid #d7dae2;
-    }
-    .aside-menu {
-        border-right: 0;
-    }
-    .content-container {
-        top: 60px;
-        left: 200px;
-        position: absolute;
-        overflow: auto;
-        height: calc(100% - 60px);
-        width: calc(100% - 200px);
-    }
+    
 </style>
